@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="visible_count" format="integer" />        <!--可见Tab数量-->
+    <attr name="title_size" format="integer" />                <!--标题字体大小-->
+    <attr name="title_color_normal" format="color|reference" />       <!--未选中的字体颜色-->
+    <attr name="title_color_selected" format="color|reference" />     <!--选中时的字体颜色-->
+    <attr name="pointer_type" format="string">            <!--标题指示器的样式（1：LINE，2：TRIANGLE，3：BACKGROUND）-->
+        <enum name="none" value="0" />
+        <enum name="line" value="1" />
+        <enum name="triangle" value="2" />
+        <enum name="background" value="3" />
+    </attr>
+    <attr name="pointer_color" format="color" />             <!--指示器颜色-->
+    <attr name="pointer_percent" format="float" />              <!--指示器宽度-->
+    <attr name="pointer_height" format="integer" />              <!--指示器宽度-->
+
+    <declare-styleable name="ViewIndicator">
+        <attr name="visible_count" />
+        <attr name="title_size" />
+        <attr name="title_color_normal" />
+        <attr name="title_color_selected" />
+        <attr name="pointer_type" />
+        <attr name="pointer_color" />
+        <attr name="pointer_percent"/>
+        <attr name="pointer_height" />
+    </declare-styleable>
+
+</resources>
