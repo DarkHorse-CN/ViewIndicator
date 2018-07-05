@@ -48,6 +48,9 @@ class ViewIndicator : LinearLayout {
     private var mPointerColor: Int = mTitleColorSelected     //指示器颜色
 
     private lateinit var mTitles: Array<String>    //标题组
+    private var mViewClickListener: IViewClickListener? = null //标题点击事件
+
+    var isLock = false
 
     constructor(context: Context) : this(context, null)
 
@@ -151,7 +154,7 @@ class ViewIndicator : LinearLayout {
      * @param position
      * @param positionOffset
      */
-    private fun pointerScroll(position:Int,positionOffset: Float) {
+    private fun pointerScroll(position: Int, positionOffset: Float) {
         mTranslationX = (mTabWidth * (positionOffset + position)).toInt()
         var view: View = this
         if (parent is HorizontalScrollView) {
@@ -173,23 +176,23 @@ class ViewIndicator : LinearLayout {
      * 选定的Tab
      * @param position
      */
-    private fun setTab(position: Int){
-        for(i in  0 until childCount){
-            val textView = getChildAt(i) as  ColorTrackTextView
-            textView.callOnChange(1f,true)
+    private fun setTab(position: Int) {
+        for (i in 0 until childCount) {
+            val textView = getChildAt(i) as ColorTrackTextView
+            textView.callOnChange(1f, true)
         }
-        invalidate(position,0f)
+        invalidate(position, 0f)
     }
 
     fun invalidate(position: Int, positionOffset: Float = 0f) {
         val curTextView = getChildAt(position) as ColorTrackTextView
-        curTextView.callOnChange(positionOffset,true);
+        curTextView.callOnChange(positionOffset, true);
 
-        if(position<childCount-1){
-            val nextTextView = getChildAt(position+1) as ColorTrackTextView
-            nextTextView.callOnChange(positionOffset,false)
+        if (position < childCount - 1) {
+            val nextTextView = getChildAt(position + 1) as ColorTrackTextView
+            nextTextView.callOnChange(positionOffset, false)
         }
-        pointerScroll(position,positionOffset)
+        pointerScroll(position, positionOffset)
     }
 
     /**
@@ -198,28 +201,38 @@ class ViewIndicator : LinearLayout {
      * @param title
      * @return
      */
-    private fun generateTextView(position: Int, title: String, viewClickListener: IViewClickListener?): ColorTrackTextView {
-        val tv = ColorTrackTextView(context, mTitleColorNormal, mTitleColorSelected, mTitleSize,mTabWidth, title)
+    private fun generateTextView(position: Int, title: String): ColorTrackTextView {
+        val tv = ColorTrackTextView(context, mTitleColorNormal, mTitleColorSelected, mTitleSize, mTabWidth, title)
         val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         lp.width = mTabWidth
         tv.gravity = Gravity.CENTER
         tv.layoutParams = lp
 
         tv.setOnClickListener {
-            setTab(position)
-            viewClickListener?.onViewClickListener(position)
+            if (!isLock) {
+                setTab(position)
+                mViewClickListener?.onViewClickListener(position)
+            }
         }
         return tv
     }
 
-    fun init(titles: Array<String>, viewClickListener: IViewClickListener? = null) {
-        if (titles.isNotEmpty()) {
-            this.removeAllViews()
+    /**
+     * 初始化控件
+     */
+    fun init(titles: Array<String>?, viewClickListener: IViewClickListener? = null) {
+        if (viewClickListener != null) {
+            mViewClickListener = viewClickListener
+        }
+        if (titles != null) {
             mTitles = titles
+        }
+        this.removeAllViews()
+        if (mTitles.isNotEmpty()) {
             for (i in mTitles.indices) {
-                this.addView(generateTextView(i, mTitles[i], viewClickListener))
+                this.addView(generateTextView(i, mTitles[i]))
             }
-            invalidate(0,0f)
+            invalidate(0, 0f)
         }
     }
 

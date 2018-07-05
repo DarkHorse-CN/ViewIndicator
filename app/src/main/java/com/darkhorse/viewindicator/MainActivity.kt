@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.support.v4.view.ViewPager
 import android.util.Log
 import android.widget.AbsListView
+import com.darkhorse.viewindicator.R.id.mIndicator
+import com.darkhorse.viewindicator.R.id.mViewPager
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -25,7 +27,12 @@ class MainActivity : AppCompatActivity() {
         mViewPager.adapter = VpAdapter(supportFragmentManager, arrayList)
         mViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(p0: Int) {
-
+                Log.i("tag",p0.toString())
+                if(p0 == ViewPager.SCROLL_STATE_DRAGGING){
+                    mIndicator.isLock = true
+                }else if(p0 == ViewPager.SCROLL_STATE_IDLE){
+                    mIndicator.isLock = false
+                }
             }
 
             override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
