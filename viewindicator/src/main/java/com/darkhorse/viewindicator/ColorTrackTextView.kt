@@ -1,5 +1,6 @@
 package com.darkhorse.viewindicator
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -11,47 +12,33 @@ import android.util.Log
 import android.util.TypedValue
 import android.widget.TextView
 
+@SuppressLint("ViewConstructor")
 /**
  * Description:
  * Created by DarkHorse on 2018/6/29.
  */
-class ColorTrackTextView : TextView {
+class ColorTrackTextView(context: Context, colorNormal: Int, colorSelector: Int, textSize: Int, width: Int, text: String) : TextView(context) {
 
-    private var mTitleColorNormal: Int = Color.parseColor("#000000")  //标题正常颜色
-    private var mTitleColorSelected: Int = Color.parseColor("#DC143C")  //标题选中颜色
-    private var mProgress = 0f
+    private var mTitleColorNormal: Int = colorNormal  //标题正常颜色
+    private var mTitleColorSelected: Int = colorSelector  //标题选中颜色
+    private var mProgress = -1f
     private var mDirection = true
     private var mTextWidth = 0f
-    private var mText: String
-
-    private var isInit = false
-
-    constructor(context: Context, colorNormal: Int, colorSelector: Int, textSize: Int,width:Int, text: String) : super(context) {
-        mTitleColorNormal = colorNormal
-        mTitleColorSelected = colorSelector
-        mText = text
-        paint.isAntiAlias = true
-        paint.isDither = true
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
-        paint.textSize = getTextSize()
-        mTextWidth = width.toFloat()
-    }
+    private var mText: String = text
 
     override fun onDraw(canvas: Canvas) {
-        if(isInit){
+        if (mProgress == -1f) {
+            drawText(canvas, mTitleColorNormal, 0f, mTextWidth)
+        } else {
             val middle = mProgress * mTextWidth
             if (mDirection) {
-                drawText(canvas,mTitleColorNormal,0f,middle)
-                drawText(canvas,mTitleColorSelected,middle,mTextWidth)
+                drawText(canvas, mTitleColorNormal, 0f, middle)
+                drawText(canvas, mTitleColorSelected, middle, mTextWidth)
             } else {
-                drawText(canvas,mTitleColorSelected,0f,middle)
-                drawText(canvas,mTitleColorNormal,middle,mTextWidth)
+                drawText(canvas, mTitleColorSelected, 0f, middle)
+                drawText(canvas, mTitleColorNormal, middle, mTextWidth)
             }
-        }else{
-            isInit = true
-            drawText(canvas,mTitleColorNormal,0f,mTextWidth)
         }
-
     }
 
     private fun drawText(canvas: Canvas, color: Int, start: Float, end: Float) {
@@ -84,10 +71,17 @@ class ColorTrackTextView : TextView {
     }
 
     fun callOnChange(progress: Float, direction: Boolean) {
-        isInit = true
         mProgress = progress
         mDirection = direction
         postInvalidate()
+    }
+
+    init {
+        paint.isAntiAlias = true
+        paint.isDither = true
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize.toFloat())
+        paint.textSize = getTextSize()
+        mTextWidth = width.toFloat()
     }
 
 }
