@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mIndicator.init(arrayOf("tab1", "tab2", "tab3", "tab4", "tab5", "tab6", "tab7","tab8","tab9","tab10"),object : IViewClickListener{
+        mIndicator.init(arrayOf("tab1", "tab2", "tab3", "tab4", "tab5", "tab6", "tab7"),object : IViewClickListener{
             override fun onViewClickListener(position: Int) {
                 mViewPager.setCurrentItem(position,false)
             }

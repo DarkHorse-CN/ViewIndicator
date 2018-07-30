@@ -16,9 +16,10 @@
         <com.darkhorse.viewindicator.ViewIndicator
             android:id="@+id/mIndicator"
             android:layout_width="match_parent"
+            app:visible_count="2"
             app:title_size="14"
-            app:pointer_type="line"
-            app:pointer_percent="0.8"
+            app:pointer_type="background"
+            app:title_color_selected="#ffffff"
             android:layout_height="50dp" />
     </HorizontalScrollView>
 

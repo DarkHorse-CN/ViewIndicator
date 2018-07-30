@@ -22,6 +22,10 @@ class ViewIndicator : LinearLayout {
     private var mTitleColorNormal: Int = Color.parseColor("#000000")  //标题正常颜色
     private var mTitleColorSelected: Int = Color.parseColor("#DC143C")  //标题选中颜色
     private var mPointerType: Int = 0  //指示器样式
+    private val NONE = 0
+    private val LINE = 1
+    private val TRIGANGLE = 2
+    private val BACKGROUND = 3
 
     //画笔
     private val mPaint: Paint by lazy {
@@ -85,13 +89,13 @@ class ViewIndicator : LinearLayout {
     }
 
     override fun dispatchDraw(canvas: Canvas?) {
-        super.dispatchDraw(canvas)
         if (mPointerType != 0) {
             canvas?.save()
             canvas?.translate((mInitTranslationX + mTranslationX).toFloat(), height.toFloat())
             canvas?.drawPath(mPath, mPaint)
             canvas?.restore()
         }
+        super.dispatchDraw(canvas)
     }
 
     /**
@@ -106,11 +110,11 @@ class ViewIndicator : LinearLayout {
         super.onSizeChanged(w, h, oldw, oldh)
 
         when (mPointerType) {
-            2 -> {
+            TRIGANGLE -> {
                 mPointerWidth = mTabWidth / 6
                 mPointerHeight = mPointerWidth / 2
             }
-            3 -> {
+            BACKGROUND -> {
                 mPointerWidth = mTabWidth
                 mPointerHeight = h
             }
@@ -125,20 +129,20 @@ class ViewIndicator : LinearLayout {
      */
     private fun initPointer() {
         when (mPointerType) {
-            1 -> {
+            LINE -> {
                 mPath.moveTo(0f, 0f)
                 mPath.lineTo(mPointerWidth.toFloat(), 0f)
                 mPath.lineTo(mPointerWidth.toFloat(), (-mPointerHeight).toFloat())
                 mPath.lineTo(0f, (-mPointerHeight).toFloat())
                 mPath.close()
             }
-            2 -> {
+            TRIGANGLE -> {
                 mPath.moveTo(0f, 0f)
                 mPath.lineTo(mPointerWidth.toFloat(), 0f)
                 mPath.lineTo((mPointerWidth / 2).toFloat(), (-mPointerHeight).toFloat())
                 mPath.close()
             }
-            3 -> {
+            BACKGROUND -> {
                 mPath.moveTo(0f, 0f)
                 mPath.lineTo(mPointerWidth.toFloat(), 0f)
                 mPath.lineTo(mPointerWidth.toFloat(), (-mPointerHeight).toFloat())
