@@ -14,33 +14,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mIndicator.init(arrayOf("tab1", "tab2", "tab3", "tab4", "tab5", "tab6", "tab7"),object : IViewClickListener{
-            override fun onViewClickListener(position: Int) {
-                mViewPager.setCurrentItem(position,false)
-            }
-        })
+//        mIndicator.init(arrayOf("tab1", "tab2", "tab3", "tab4", "tab5", "tab6", "tab7"), object : TabItemClickListener {
+//            override fun onTabItemClickListener(position: Int) {
+//                mViewPager.setCurrentItem(position, false)
+//            }
+//        })
+        mIndicator.init(arrayOf("tab1", "tab2", "tab3", "tab4", "tab5", "tab6", "tab7"), mViewPager)
 
         val arrayList = ArrayList<TabFragment>()
-        for (i in 0 until 10) {
+        for (i in 1 .. 7) {
             arrayList.add(TabFragment("Tab$i"))
         }
         mViewPager.adapter = VpAdapter(supportFragmentManager, arrayList)
-        mViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(p0: Int) {
-                Log.i("tag",p0.toString())
-                if(p0 == ViewPager.SCROLL_STATE_DRAGGING){
-                    mIndicator.isLock = true
-                }else if(p0 == ViewPager.SCROLL_STATE_IDLE){
-                    mIndicator.isLock = false
-                }
-            }
 
-            override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
-                mIndicator.invalidate(p0, p1)
-            }
-
-            override fun onPageSelected(p0: Int) {
-            }
-        })
     }
 }

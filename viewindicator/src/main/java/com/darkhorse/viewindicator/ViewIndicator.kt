@@ -2,8 +2,10 @@ package com.darkhorse.viewindicator
 
 import android.content.Context
 import android.graphics.*
+import android.support.v4.view.ViewPager
 import android.util.AttributeSet
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -17,12 +19,16 @@ import android.widget.LinearLayout
  */
 class ViewIndicator : LinearLayout {
 
+    companion object {
+        val COLOR_TITLE_NORMAL = Color.parseColor("#000000")     //标题正常颜色
+        val COLOR_TITLE_SELECTED = Color.parseColor("#DC143C")  //标题选中颜色
+    }
+
     private var mVisibleCount: Int = 4 //可见Tab数量
     private var mTitleSize: Int = 14           //标题字体大小
-    private var mTitleColorNormal: Int = Color.parseColor("#000000")  //标题正常颜色
-    private var mTitleColorSelected: Int = Color.parseColor("#DC143C")  //标题选中颜色
+    private var mTitleColorNormal: Int = COLOR_TITLE_NORMAL
+    private var mTitleColorSelected: Int = COLOR_TITLE_SELECTED
     private var mPointerType: Int = 0  //指示器样式
-    private val NONE = 0
     private val LINE = 1
     private val TRIGANGLE = 2
     private val BACKGROUND = 3
@@ -52,7 +58,8 @@ class ViewIndicator : LinearLayout {
     private var mPointerColor: Int = mTitleColorSelected     //指示器颜色
 
     private lateinit var mTitles: Array<String>    //标题组
-    private var mViewClickListener: IViewClickListener? = null //标题点击事件
+    private var mTabItemClickListener: TabItemClickListener? = null //标题点击事件
+    private var mViewPager: ViewPager? = null //绑定ViewPager
 
     var isLock = false
 
@@ -69,20 +76,21 @@ class ViewIndicator : LinearLayout {
         mTitleSize = typeArray.getInt(R.styleable.ViewIndicator_title_size, 14)
 
         //获取可见Tab的默认颜色和被选中时的颜色
-        mTitleColorNormal = typeArray.getInt(R.styleable.ViewIndicator_title_color_normal, Color.parseColor("#000000"))
-        mTitleColorSelected = typeArray.getInt(R.styleable.ViewIndicator_title_color_selected, Color.parseColor("#DC143C"))
+        mTitleColorNormal = typeArray.getInt(R.styleable.ViewIndicator_title_color_normal, COLOR_TITLE_NORMAL)
+        mTitleColorSelected = typeArray.getInt(R.styleable.ViewIndicator_title_color_selected, COLOR_TITLE_SELECTED)
 
         //获取指示器类型
         mPointerType = typeArray.getInt(R.styleable.ViewIndicator_pointer_type, 1)
 
         //获取指示器颜色
-        mPointerColor = typeArray.getInt(R.styleable.ViewIndicator_pointer_color, Color.parseColor("#DC143C"))
+        mPointerColor = typeArray.getInt(R.styleable.ViewIndicator_pointer_color, mTitleColorSelected)
 
         //获取指示器宽度度
         mPointerWidth = (typeArray.getFloat(R.styleable.ViewIndicator_pointer_percent, 1f) * mTabWidth).toInt()
 
         //获取指示器高度
-        mPointerHeight = typeArray.getInt(R.styleable.ViewIndicator_pointer_height, 10)
+        val height = typeArray.getInt(R.styleable.ViewIndicator_pointer_height, 2)
+        mPointerHeight = (height * context.resources.displayMetrics.density + 0.5f).toInt()
 
         typeArray.recycle()
 
@@ -215,19 +223,22 @@ class ViewIndicator : LinearLayout {
         tv.setOnClickListener {
             if (!isLock) {
                 setTab(position)
-                mViewClickListener?.onViewClickListener(position)
+                mTabItemClickListener?.onTabItemClickListener(position)
+                mViewPager?.setCurrentItem(position, false)
             }
         }
         return tv
     }
 
     /**
-     * 初始化控件
+     * 初始化控件,实现TabItem点击事件
      */
-    fun init(titles: Array<String>?, viewClickListener: IViewClickListener? = null) {
+    fun init(titles: Array<String>?, viewClickListener: TabItemClickListener? = null) {
+        mViewPager = null
         if (viewClickListener != null) {
-            mViewClickListener = viewClickListener
+            mTabItemClickListener = viewClickListener
         }
+
         if (titles != null) {
             mTitles = titles
         }
@@ -239,6 +250,40 @@ class ViewIndicator : LinearLayout {
             invalidate(0, 0f)
         }
     }
+
+    fun init(titles: Array<String>?, viewPager: ViewPager) {
+        mViewPager = viewPager
+        mTabItemClickListener = null
+
+        mViewPager?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(p0: Int) {
+                if (p0 == ViewPager.SCROLL_STATE_DRAGGING) {
+                    isLock = true
+                } else if (p0 == ViewPager.SCROLL_STATE_IDLE) {
+                    isLock = false
+                }
+            }
+
+            override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
+                invalidate(p0, p1)
+            }
+
+            override fun onPageSelected(p0: Int) {
+            }
+        })
+
+        if (titles != null) {
+            mTitles = titles
+        }
+        this.removeAllViews()
+        if (mTitles.isNotEmpty()) {
+            for (i in mTitles.indices) {
+                this.addView(generateTextView(i, mTitles[i]))
+            }
+            invalidate(0, 0f)
+        }
+    }
+
 
     /**
      * 获取屏幕宽度
